@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#10B981" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Minha Lista" />
+  <meta name="description" content="Lista de compras simples e rápida" />
+
+  <title>Minha Lista</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png" />
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="app">
+
+    <header class="header">
+      <div class="header-top">
+        <div class="header-title">
+          <span class="header-icon">🛒</span>
+          <h1>Minha Lista</h1>
+        </div>
+        <button class="clear-btn" id="clear-done-btn" onclick="clearDone()" aria-label="Limpar itens comprados">
+          <i class="ti ti-check-all"></i>
+          limpar feitos
+        </button>
+      </div>
+      <p class="header-sub" id="sub-text">Nenhum item ainda</p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="prog" style="width:0%"></div>
+      </div>
+    </header>
+
+    <div class="add-section">
+      <input
+        type="text"
+        id="item-input"
+        placeholder="Adicionar item..."
+        maxlength="60"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+      />
+      <div class="qty-wrap">
+        <label for="qty-input">qtd</label>
+        <input type="number" id="qty-input" value="1" min="1" max="99" />
+      </div>
+      <button class="add-btn" onclick="addItem()" aria-label="Adicionar item">
+        <i class="ti ti-plus"></i>
+      </button>
+    </div>
+
+    <main class="list-body" id="list-body"></main>
+
+    <div class="footer-pill" id="footer-pill">
+      <span id="footer-left"></span>
+      <strong id="footer-right"></strong>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
