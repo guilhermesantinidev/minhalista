@@ -3,21 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#10B981" />
+  <meta name="theme-color" content="#15803d" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Minha Lista" />
   <meta name="description" content="Lista de compras simples e rápida" />
-
   <title>Minha Lista</title>
 
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
-
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -25,48 +24,163 @@
   <div id="app">
 
     <header class="header">
-      <div class="header-top">
-        <div class="header-title">
-          <span class="header-icon">🛒</span>
-          <h1>Minha Lista</h1>
+      <div class="header-blob"></div>
+      <div class="header-content">
+        <div class="header-top">
+          <div class="header-title">
+            <div class="header-icon-wrap">
+              <i class="ti ti-shopping-cart"></i>
+            </div>
+            <div>
+              <h1>Minha Lista</h1>
+              <p class="header-sub" id="sub-text">Nenhum item ainda</p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="header-btn" onclick="openImport()" aria-label="Importar lista">
+              <i class="ti ti-download"></i>
+            </button>
+            <button class="header-btn" onclick="openExport()" aria-label="Exportar lista">
+              <i class="ti ti-upload"></i>
+            </button>
+            <button class="clear-btn" onclick="clearDone()" aria-label="Limpar itens comprados">
+              <i class="ti ti-check-all"></i>
+              <span>Limpar</span>
+            </button>
+          </div>
         </div>
-        <button class="clear-btn" id="clear-done-btn" onclick="clearDone()" aria-label="Limpar itens comprados">
-          <i class="ti ti-check-all"></i>
-          limpar feitos
-        </button>
-      </div>
-      <p class="header-sub" id="sub-text">Nenhum item ainda</p>
-      <div class="progress-bar">
-        <div class="progress-fill" id="prog" style="width:0%"></div>
+        <div class="progress-track">
+          <div class="progress-fill" id="prog" style="width:0%"></div>
+        </div>
       </div>
     </header>
 
     <div class="add-section">
-      <input
-        type="text"
-        id="item-input"
-        placeholder="Adicionar item..."
-        maxlength="60"
-        autocomplete="off"
-        autocorrect="off"
-        spellcheck="false"
-      />
-      <div class="qty-wrap">
-        <label for="qty-input">qtd</label>
-        <input type="number" id="qty-input" value="1" min="1" max="99" />
+      <div class="input-row">
+        <input
+          type="text"
+          id="item-input"
+          placeholder="O que falta comprar?"
+          maxlength="60"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        />
+        <div class="qty-chip">
+          <button class="qty-btn" onclick="changeQty(-1)" aria-label="Diminuir quantidade">−</button>
+          <input type="number" id="qty-input" value="1" min="1" max="99" aria-label="Quantidade" />
+          <button class="qty-btn" onclick="changeQty(1)" aria-label="Aumentar quantidade">+</button>
+        </div>
+        <button class="add-btn" onclick="addItem()" aria-label="Adicionar item">
+          <i class="ti ti-plus"></i>
+        </button>
       </div>
-      <button class="add-btn" onclick="addItem()" aria-label="Adicionar item">
-        <i class="ti ti-plus"></i>
-      </button>
     </div>
 
     <main class="list-body" id="list-body"></main>
 
     <div class="footer-pill" id="footer-pill">
-      <span id="footer-left"></span>
+      <div class="footer-count">
+        <i class="ti ti-basket"></i>
+        <span id="footer-left"></span>
+      </div>
       <strong id="footer-right"></strong>
     </div>
 
+  </div>
+
+  <!-- ── MODAL: EXPORTAR ── -->
+  <div class="modal-overlay" id="export-modal" onclick="closeModal('export-modal')">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div class="sheet-title-wrap">
+          <div class="sheet-icon green">
+            <i class="ti ti-upload"></i>
+          </div>
+          <div>
+            <h2 class="sheet-title">Exportar lista</h2>
+            <p class="sheet-sub">Copie e envie pelo WhatsApp</p>
+          </div>
+        </div>
+        <button class="sheet-close" onclick="closeModal('export-modal')" aria-label="Fechar">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+
+      <div class="export-text-wrap">
+        <textarea id="export-text" class="export-textarea" readonly></textarea>
+      </div>
+
+      <div class="sheet-actions">
+        <button class="btn-secondary" onclick="closeModal('export-modal')">Fechar</button>
+        <button class="btn-primary" onclick="copyExport()">
+          <i class="ti ti-copy" id="copy-icon"></i>
+          <span id="copy-label">Copiar tudo</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL: IMPORTAR ── -->
+  <div class="modal-overlay" id="import-modal" onclick="closeModal('import-modal')">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div class="sheet-title-wrap">
+          <div class="sheet-icon blue">
+            <i class="ti ti-download"></i>
+          </div>
+          <div>
+            <h2 class="sheet-title">Importar lista</h2>
+            <p class="sheet-sub">Cole o texto recebido abaixo</p>
+          </div>
+        </div>
+        <button class="sheet-close" onclick="closeModal('import-modal')" aria-label="Fechar">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+
+      <!-- Passo 1: colar texto -->
+      <div id="import-step-1">
+        <textarea
+          id="import-text"
+          class="import-textarea"
+          placeholder="Cole aqui a lista recebida pelo WhatsApp...&#10;&#10;Exemplo:&#10;🛒 Minha Lista&#10;• Arroz (3×)&#10;• Feijão&#10;• Leite (2×)"
+          oninput="onImportInput()"
+        ></textarea>
+        <div class="sheet-actions">
+          <button class="btn-secondary" onclick="closeModal('import-modal')">Cancelar</button>
+          <button class="btn-primary" id="import-parse-btn" onclick="parseImport()" disabled>
+            <i class="ti ti-arrow-right"></i>
+            <span>Ver itens</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Passo 2: preview e escolha -->
+      <div id="import-step-2" style="display:none">
+        <div class="import-preview-header">
+          <span id="import-count-label"></span>
+          <button class="link-btn" onclick="backToStep1()">
+            <i class="ti ti-arrow-left"></i> Editar
+          </button>
+        </div>
+        <ul class="import-preview-list" id="import-preview-list"></ul>
+        <div class="import-choice-label">Como deseja importar?</div>
+        <div class="sheet-actions two-col">
+          <button class="btn-choice" onclick="doImport('merge')">
+            <i class="ti ti-playlist-add"></i>
+            <span>Adicionar à lista</span>
+          </button>
+          <button class="btn-choice btn-choice-primary" onclick="doImport('replace')">
+            <i class="ti ti-refresh"></i>
+            <span>Nova lista</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <script src="app.js"></script>
